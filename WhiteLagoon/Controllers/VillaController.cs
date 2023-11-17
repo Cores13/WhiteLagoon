@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using WhiteLagoon.Domain.Entities;
 using WhiteLagoon.Infrastructure.Data;
 
@@ -16,14 +17,14 @@ namespace WhiteLagoon.Controllers
         }
 
         // GET: VillaController
-        public ActionResult Index()
+        public IActionResult Index()
         {
             var villas = _context.Villas.ToList();
             return View(villas);
         }
 
         // GET: VillaController/Details/5
-        public ActionResult Details(int id)
+        public IActionResult Details(int id)
         {
             var villa = _context.Villas.FindAsync(id);
 
@@ -31,7 +32,7 @@ namespace WhiteLagoon.Controllers
         }
 
         // GET: VillaController/Create
-        public ActionResult Create()
+        public IActionResult Create()
         {
             return View();
         }
@@ -39,24 +40,37 @@ namespace WhiteLagoon.Controllers
         // POST: VillaController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(Villa request)
         {
             try
             {
-                //var villa = new Villa
-                //{
-
-                //};
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    var villa = new Villa
+                    {
+                        Name = request.Name,
+                        Description = request.Description,
+                        Price = request.Price,
+                        Sqm = request.Sqm,
+                        Occupancy = request.Occupancy,
+                        ImageUrl = request.ImageUrl
+                    };
+                    _context.Villas.Add(villa);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }else
+                {
+                    return View();
+                }
             }
             catch
             {
-                return View();
+                return RedirectToAction(nameof(Index));
             }
         }
 
         // GET: VillaController/Edit/5
-        public ActionResult Edit(int id)
+        public IActionResult Edit(int id)
         {
             return View();
         }
@@ -64,7 +78,7 @@ namespace WhiteLagoon.Controllers
         // POST: VillaController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public IActionResult Edit(int id, IFormCollection collection)
         {
             try
             {
@@ -79,7 +93,7 @@ namespace WhiteLagoon.Controllers
         }
 
         // GET: VillaController/Delete/5
-        public ActionResult Delete(int id)
+        public IActionResult Delete(int id)
         {
             return View();
         }
@@ -87,7 +101,7 @@ namespace WhiteLagoon.Controllers
         // POST: VillaController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public IActionResult Delete(int id, IFormCollection collection)
         {
             try
             {
