@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -44,6 +45,10 @@ namespace WhiteLagoon.Controllers
         {
             try
             {
+                if(request.Name == request.Description)
+                {
+                    ModelState.AddModelError("", "The Description cannot exactly match the Name.");
+                }
                 if (ModelState.IsValid)
                 {
                     var villa = new Villa
@@ -72,19 +77,48 @@ namespace WhiteLagoon.Controllers
         // GET: VillaController/Edit/5
         public IActionResult Edit(int id)
         {
-            return View();
+            var villa = _context.Villas.Find(id);
+            if (villa is null)
+            {
+                return BadRequest();
+            }
+            return View(villa);
         }
 
         // POST: VillaController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, Villa request)
         {
             try
             {
-                var villa = _context.Villas.FindAsync(id);
+                if (request.Name == request.Description)
+                {
+                    ModelState.AddModelError("", "The Description cannot exactly match the Name.");
+                }
+                if (ModelState.IsValid)
+                {
+                    var villa = await _context.Villas.FindAsync(id);
+                    if(villa is null)
+                    {
+                        return BadRequest();
+                    }
+                    //villa = {
+                    villa.Name = request.Name;
+                    villa.Description = request.Description;
+                    villa.Price = request.Price;
+                    villa.Sqm = request.Sqm;
+                    villa.Occupancy = request.Occupancy;
+                    villa.ImageUrl = request.ImageUrl;
+                    //};
+                    await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    return View();
+                }
             }
             catch
             {
