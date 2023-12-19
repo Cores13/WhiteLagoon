@@ -62,14 +62,18 @@ namespace WhiteLagoon.Controllers
                     };
                     _context.Villas.Add(villa);
                     await _context.SaveChangesAsync();
+                    TempData["success"] = "The villa has been added successfully";
                     return RedirectToAction(nameof(Index));
-                }else
+                }
+                else
                 {
+                    TempData["error"] = "The data is invalid";
                     return View();
                 }
             }
             catch
             {
+                TempData["error"] = "An unexpected error ocurred";
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -113,15 +117,19 @@ namespace WhiteLagoon.Controllers
                     //};
                     await _context.SaveChangesAsync();
 
+                    TempData["success"] = "The villa has been updated successfully";
+
                     return RedirectToAction(nameof(Index));
                 }
                 else
                 {
+                    TempData["error"] = "The data is invalid";
                     return View();
                 }
             }
             catch
             {
+                TempData["error"] = "An unexpected error ocurred";
                 return View();
             }
         }
@@ -135,16 +143,25 @@ namespace WhiteLagoon.Controllers
         // POST: VillaController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> Delete(int id, IFormCollection collection)
         {
             try
             {
-                var villa = _context.Villas.FindAsync(id);
+                var villa = await _context.Villas.FindAsync(id);
+                if (villa is null)
+                {
+                    return BadRequest();
+                }
 
+                _context.Villas.Remove(villa);
+                _context.SaveChanges();
+
+                    TempData["success"] = "The villa has been deleted successfully";
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
+                TempData["error"] = "An unexpected error ocurred";
                 return View();
             }
         }
