@@ -137,7 +137,12 @@ namespace WhiteLagoon.Controllers
         // GET: VillaController/Delete/5
         public IActionResult Delete(int id)
         {
-            return View();
+            var villa = _context.Villas.Find(id);
+            if (villa is null)
+            {
+                return BadRequest();
+            }
+            return View(villa);
         }
 
         // POST: VillaController/Delete/5
