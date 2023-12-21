@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using WhiteLagoon.Application.Interfaces;
 using WhiteLagoon.Domain.Entities;
 using WhiteLagoon.Infrastructure.Data;
 
@@ -10,26 +11,18 @@ namespace WhiteLagoon.Controllers
 {
     public class VillaController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public VillaController(ApplicationDbContext context)
+        public VillaController(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: VillaController
         public IActionResult Index()
         {
-            var villas = _context.Villas.ToList();
+            var villas = _unitOfWork.Villa.GetAll();
             return View(villas);
-        }
-
-        // GET: VillaController/Details/5
-        public IActionResult Details(int id)
-        {
-            var villa = _context.Villas.FindAsync(id);
-
-            return View();
         }
 
         // GET: VillaController/Create
@@ -41,7 +34,7 @@ namespace WhiteLagoon.Controllers
         // POST: VillaController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Villa request)
+        public IActionResult Create(Villa request)
         {
             try
             {
@@ -60,8 +53,8 @@ namespace WhiteLagoon.Controllers
                         Occupancy = request.Occupancy,
                         ImageUrl = request.ImageUrl
                     };
-                    _context.Villas.Add(villa);
-                    await _context.SaveChangesAsync();
+                    _unitOfWork.Villa.Add(villa);
+                    _unitOfWork.Villa.Save();
                     TempData["success"] = "The villa has been added successfully";
                     return RedirectToAction(nameof(Index));
                 }
@@ -81,7 +74,7 @@ namespace WhiteLagoon.Controllers
         // GET: VillaController/Edit/5
         public IActionResult Edit(int id)
         {
-            var villa = _context.Villas.Find(id);
+            var villa = _unitOfWork.Villa.Get(v => v.Id == id);
             if (villa is null)
             {
                 return BadRequest();
@@ -92,7 +85,7 @@ namespace WhiteLagoon.Controllers
         // POST: VillaController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Villa request)
+        public IActionResult Edit(int id, Villa request)
         {
             try
             {
@@ -102,20 +95,14 @@ namespace WhiteLagoon.Controllers
                 }
                 if (ModelState.IsValid)
                 {
-                    var villa = await _context.Villas.FindAsync(id);
-                    if(villa is null)
+                    var villa = _unitOfWork.Villa.Get(v => v.Id == id);
+                    if (villa is null)
                     {
                         return BadRequest();
                     }
-                    //villa = {
-                    villa.Name = request.Name;
-                    villa.Description = request.Description;
-                    villa.Price = request.Price;
-                    villa.Sqm = request.Sqm;
-                    villa.Occupancy = request.Occupancy;
-                    villa.ImageUrl = request.ImageUrl;
-                    //};
-                    await _context.SaveChangesAsync();
+
+                    _unitOfWork.Villa.Update(request);
+                    _unitOfWork.Villa.Save();
 
                     TempData["success"] = "The villa has been updated successfully";
 
@@ -137,7 +124,7 @@ namespace WhiteLagoon.Controllers
         // GET: VillaController/Delete/5
         public IActionResult Delete(int id)
         {
-            var villa = _context.Villas.Find(id);
+            var villa = _unitOfWork.Villa.Get(v => v.Id == id);
             if (villa is null)
             {
                 return BadRequest();
@@ -148,20 +135,20 @@ namespace WhiteLagoon.Controllers
         // POST: VillaController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id, IFormCollection collection)
+        public IActionResult Delete(int id, IFormCollection collection)
         {
             try
             {
-                var villa = await _context.Villas.FindAsync(id);
+                var villa = _unitOfWork.Villa.Get(v => v.Id == id);
                 if (villa is null)
                 {
                     return BadRequest();
                 }
 
-                _context.Villas.Remove(villa);
-                _context.SaveChanges();
+                _unitOfWork.Villa.Remove(villa);
+                _unitOfWork.Villa.Save();
 
-                    TempData["success"] = "The villa has been deleted successfully";
+                TempData["success"] = "The villa has been deleted successfully";
                 return RedirectToAction(nameof(Index));
             }
             catch
