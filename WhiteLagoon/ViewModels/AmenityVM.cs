@@ -4,9 +4,9 @@ using WhiteLagoon.Domain.Entities;
 
 namespace WhiteLagoon.ViewModels
 {
-    public class VillaNumberVM
+    public class AmenityVM
     {
-        public VillaNumber? VillaNumber { get; set; }
+        public Amenity? Amenity { get; set; }
 
         [ValidateNever]
         public IEnumerable<SelectListItem>? VillaList {  get; set; }
