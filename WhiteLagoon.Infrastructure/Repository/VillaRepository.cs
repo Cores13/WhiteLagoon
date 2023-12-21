@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +21,17 @@ namespace WhiteLagoon.Infrastructure.Repository
             _context = context;
         }
 
-        public void Save()
-        {
-            _context.SaveChanges();
-        }
-
         public void Update(Villa entity)
         {
-            _context.Villas.Update(entity);
+            var villa = _context.Villas.Find(entity.Id);
+
+            villa.Name = entity.Name;
+            villa.Description = entity.Description;
+            villa.Price = entity.Price;
+            villa.Sqm = entity.Sqm;
+            villa.Occupancy = entity.Occupancy;
+            villa.ImageUrl = entity.ImageUrl;
+            _context.SaveChanges();
         }
     }
 }

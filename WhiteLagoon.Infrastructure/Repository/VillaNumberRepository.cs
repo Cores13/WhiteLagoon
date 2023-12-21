@@ -19,14 +19,12 @@ namespace WhiteLagoon.Infrastructure.Repository
             _context = context;
         }
 
-        public void Save()
-        {
-            _context.SaveChanges();
-        }
-
         public void Update(VillaNumber entity)
         {
-            _context.VillaNumbers.Update(entity);
+            var villaNumber = _context.VillaNumbers.Find(entity.Villa_Number);
+            villaNumber.VillaId = entity.VillaId;
+            villaNumber.SpecialDetails = entity.SpecialDetails;
+            _context.SaveChanges();
         }
     }
 }

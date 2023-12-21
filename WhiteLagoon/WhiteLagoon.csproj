@@ -18,4 +18,9 @@
     <ProjectReference Include="..\WhiteLagoon.Infrastructure\WhiteLagoon.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\Room Images\" />
+    <Folder Include="wwwroot\Images\Villa\" />
+  </ItemGroup>
+
 </Project>

@@ -24,6 +24,7 @@ namespace WhiteLagoon.Infrastructure.Repository
         public void Add(T entity)
         {
             dbSet.Add(entity);
+            _context.SaveChanges();
         }
 
         public bool Any(Expression<Func<T,bool>> filter)
@@ -70,6 +71,7 @@ namespace WhiteLagoon.Infrastructure.Repository
         public void Remove(T entity)
         {
             dbSet.Remove(entity);
+            _context.SaveChanges();
         }
     }
 }
